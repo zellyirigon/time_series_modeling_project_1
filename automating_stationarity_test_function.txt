@@ -1,0 +1,45 @@
+# Function to test stationarity - Automating the Stationarity Test
+def zelly_stationarity_test(series, window = 12, title = 'Rolling Average & Dickey-Fuller Test'):
+    """
+    Function to test the stationarity of the time series.
+
+    Parameters:
+    - series: pandas.Series. Time series to be tested.
+    - window: int. Window to calculate rolling statistics.
+    - title: str. Title for the graphs.
+    """
+    # Calculating the rolling average
+    rolmean = series.rolling(window = window).mean()
+    rolstd = series.rolling(window = window).std()
+
+    # Plot Rolling Statistics
+    plt.figure(figsize = (14,6))
+    plt.plot(series, color = 'blue', label = 'Original')
+    plt.plot(rolmean, color = 'red', label = 'Rolling Average')
+    plt.plot(rolstd, color ='black', label = 'Rolling Standard Deviation')
+    plt.legend(loc = 'best')
+    plt.title(title)
+    plt.show(block = False)
+
+    # Dickey_Fuller Test
+    print('\nResult Dickey-Fuller Test: ')
+    dftest = adfuller(series, autolag = 'AIC') #adfuller creates vary models using the AIC metric
+    dfoutput = pd.Series(dftest[0:4], index =['Test Statistic',
+                                              'p-Value',
+                                              'Lags Number Considered',
+                                              'Observations Number Used'])
+    for key,value in dftest[4].items():
+        dfoutput['Critic Value (%s)' % key] = value
+
+    print(dfoutput)
+
+    # Conclusion based in the p-value
+    if dfoutput['p-Value'] > 0.05:
+        print('\nConclusion:\nThe p-value is greater than 0.05, therefore, we do not have evidence to reject the null hypothesis.\nThis series is probably not stationary.')
+    else:
+        print('\nConclusion:\nThe p-value is less than 0.05, therefore, we have evidence to reject the null hypothesis.\nThis series is probably stationary.')
+              
+
+
+# Executing the function
+zelly_stationarity_test(data_series)
